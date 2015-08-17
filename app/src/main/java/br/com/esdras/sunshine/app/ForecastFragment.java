@@ -1,9 +1,12 @@
 package br.com.esdras.sunshine.app;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -27,7 +31,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -36,15 +39,6 @@ import java.util.List;
 public class ForecastFragment extends Fragment {
 
     private ArrayAdapter<String> adapter;
-
-
-    private static final List<String> fakeData = new ArrayList<String>() {{
-        add("Today - Sunny - 88/63");
-        add("Tomorow - Rainy - 50/15");
-        add("Monday - Cloudy - 88/63");
-        add("Tuesday - Sunny - 87/63");
-        add("Wednesday - Sunny - 88/63");
-    }};
 
     public ForecastFragment() {
     }
@@ -57,15 +51,35 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(item.getItemId() == R.id.action_refresh){
-            new FecthWeatherTask().execute("94043");
+        int itemId = item.getItemId();
+        if( itemId == R.id.action_refresh){
+
+            updateWeather();
+
+            return true;
+        }else if(itemId == R.id.action_settings){
+            Intent intent = new Intent(getActivity(),SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String locationDefault = sp.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        new FecthWeatherTask().execute(locationDefault);
     }
 
     @Override
@@ -78,10 +92,10 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         adapter =
-                new ArrayAdapter<String>(getActivity(),
+                new ArrayAdapter<>(getActivity(),
                                          R.layout.list_item_forecast,
                                          R.id.list_item_forecast_textview,
-                                         fakeData);
+                                         new ArrayList<String>());
 
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
@@ -89,6 +103,18 @@ public class ForecastFragment extends Fragment {
         ListView listView = (ListView) view.findViewById(R.id.listview_forecast);
         listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> item, View view, int position, long id) {
+
+                String itemSelected = adapter.getItem(position);
+
+                Intent intent = new Intent(getActivity(),DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT,itemSelected);
+
+                startActivity(intent);
+            }
+        });
         return view;
     }
 
