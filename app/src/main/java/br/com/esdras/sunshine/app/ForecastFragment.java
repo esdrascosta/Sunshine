@@ -15,7 +15,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -60,14 +59,8 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int itemId = item.getItemId();
-        if( itemId == R.id.action_refresh){
-
+        if (itemId == R.id.action_refresh) {
             updateWeather();
-
-            return true;
-        }else if(itemId == R.id.action_settings){
-            Intent intent = new Intent(getActivity(),SettingsActivity.class);
-            startActivity(intent);
             return true;
         }
 
@@ -93,44 +86,53 @@ public class ForecastFragment extends Fragment {
 
         adapter =
                 new ArrayAdapter<>(getActivity(),
-                                         R.layout.list_item_forecast,
-                                         R.id.list_item_forecast_textview,
-                                         new ArrayList<String>());
+                        R.layout.list_item_forecast,
+                        R.id.list_item_forecast_textview,
+                        new ArrayList<String>());
 
 
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View viewRoot = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ListView listView = (ListView) view.findViewById(R.id.listview_forecast);
+        ListView listView = (ListView) viewRoot.findViewById(R.id.listview_forecast);
         listView.setAdapter(adapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> item, View view, int position, long id) {
+        listView.setOnItemClickListener((item, view, position, id) -> {
+            String itemSelected = adapter.getItem(position);
 
-                String itemSelected = adapter.getItem(position);
+            Intent intent = new Intent(getActivity(), DetailActivity.class)
+                    .putExtra(Intent.EXTRA_TEXT, itemSelected);
 
-                Intent intent = new Intent(getActivity(),DetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT,itemSelected);
+            startActivity(intent);
 
-                startActivity(intent);
-            }
         });
-        return view;
+
+        return viewRoot;
     }
 
-    public class FecthWeatherTask extends AsyncTask<String,Void,String[]>{
+    public class FecthWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FecthWeatherTask.class.getSimpleName();
 
-        private String getReadableDateString(long time){
+        private String getReadableDateString(long time) {
             SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
             return shortenedDateFormat.format(time);
         }
 
         private String formatHighLows(double high, double low) {
 
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String typeUnit = sharedPreferences.getString(getString(R.string.pref_units_key), "");
+
+            if (typeUnit.equals(getString(R.string.pref_units_imperial))) {
+                high = (high * 1.8) + 32;
+                low = (low * 1.8) + 32;
+            } else if (!typeUnit.equals(getString(R.string.pref_units_metric))) {
+                Log.d(LOG_TAG, "Units not found: " + typeUnit);
+            }
+
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
+
 
             String highLowStr = roundedHigh + "/" + roundedLow;
             return highLowStr;
@@ -157,7 +159,7 @@ public class ForecastFragment extends Fragment {
             dayTime = new Time();
 
             String[] resultStrs = new String[numDays];
-            for(int i = 0; i < weatherArray.length(); i++) {
+            for (int i = 0; i < weatherArray.length(); i++) {
                 String day;
                 String description;
                 String highAndLow;
@@ -165,7 +167,7 @@ public class ForecastFragment extends Fragment {
                 JSONObject dayForecast = weatherArray.getJSONObject(i);
 
                 long dateTime;
-                dateTime = dayTime.setJulianDay(julianStartDay+i);
+                dateTime = dayTime.setJulianDay(julianStartDay + i);
                 day = getReadableDateString(dateTime);
 
                 JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
@@ -177,11 +179,6 @@ public class ForecastFragment extends Fragment {
 
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
-            }
-
-
-            for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
             }
 
             return resultStrs;
@@ -205,9 +202,9 @@ public class ForecastFragment extends Fragment {
 
                 Uri builderURI = Uri.parse(FORECAST_BASE_URL).buildUpon()
                         .appendQueryParameter("q", params[0])
-                        .appendQueryParameter("mode",MODE)
-                        .appendQueryParameter("units",  METRIC)
-                        .appendQueryParameter("cnt",  String.valueOf(NUM_DAYS)).build();
+                        .appendQueryParameter("mode", MODE)
+                        .appendQueryParameter("units", METRIC)
+                        .appendQueryParameter("cnt", String.valueOf(NUM_DAYS)).build();
 
                 URL url = new URL(builderURI.toString());
 
@@ -234,7 +231,7 @@ public class ForecastFragment extends Fragment {
             } catch (IOException e) {
                 Log.e("FecthWeatherTask", "Error ", e);
                 return null;
-            } finally{
+            } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
@@ -248,21 +245,21 @@ public class ForecastFragment extends Fragment {
             }
 
             try {
-                return getWeatherDataFromJson(forecastJsonStr,NUM_DAYS);
+                return getWeatherDataFromJson(forecastJsonStr, NUM_DAYS);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            return  null;
+            return null;
         }
 
         @Override
         protected void onPostExecute(String[] strings) {
-            if(strings != null){
+            if (strings != null) {
 
                 adapter.clear();
 
-                for ( String result: strings)
+                for (String result : strings)
                     adapter.add(result);
             }
         }
