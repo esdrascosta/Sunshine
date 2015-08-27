@@ -12,7 +12,7 @@ import br.com.esdras.sunshine.app.data.WeatherContract.LocationEntry;
 public class WeatherDBHelper extends SQLiteOpenHelper{
 
     private static final int VERSION = 1;
-    private static final String DATABASE_NAME="wheather.db";
+    public static final String DATABASE_NAME="wheather.db";
 
     public WeatherDBHelper(Context context) {
         super(context, DATABASE_NAME, null, VERSION);
@@ -29,10 +29,10 @@ public class WeatherDBHelper extends SQLiteOpenHelper{
     private StringBuilder createLocationEntry(){
         final StringBuilder SQL_CREATE_TABLE_LOCATION = new StringBuilder();
         SQL_CREATE_TABLE_LOCATION.append("CREATE TABLE "+ LocationEntry.TABLE_NAME +" ( ");
-        SQL_CREATE_TABLE_LOCATION.append(LocationEntry._ID +" INTEGER PRIMARY KEY AUTOINCREMENT ");
-        SQL_CREATE_TABLE_LOCATION.append(LocationEntry.COLUMN_COORD_LAT +" REAL NOT NULL ");
-        SQL_CREATE_TABLE_LOCATION.append(LocationEntry.COLUMN_COORD_LONG +" REAL NOT NULL ");
-        SQL_CREATE_TABLE_LOCATION.append(LocationEntry.COLUMN_LOCATION_SETTINGS +" TEXT UNIQUE NOT NULL ");
+        SQL_CREATE_TABLE_LOCATION.append(LocationEntry._ID +" INTEGER PRIMARY KEY AUTOINCREMENT, ");
+        SQL_CREATE_TABLE_LOCATION.append(LocationEntry.COLUMN_COORD_LAT +" REAL NOT NULL, ");
+        SQL_CREATE_TABLE_LOCATION.append(LocationEntry.COLUMN_COORD_LONG +" REAL NOT NULL, ");
+        SQL_CREATE_TABLE_LOCATION.append(LocationEntry.COLUMN_LOCATION_SETTINGS +" TEXT UNIQUE NOT NULL, ");
         SQL_CREATE_TABLE_LOCATION.append(LocationEntry.COLUMN_CITY_NAME +" TEXT NOT NULL );");
         return SQL_CREATE_TABLE_LOCATION;
     }
@@ -41,7 +41,7 @@ public class WeatherDBHelper extends SQLiteOpenHelper{
     private StringBuilder createWeatherEntry(){
         final StringBuilder SQL_CREATE_TABLE_WEATHER = new StringBuilder();
         SQL_CREATE_TABLE_WEATHER.append("CREATE TABLE " + WeatherEntry.TABLE_NAME + " ( ");
-        SQL_CREATE_TABLE_WEATHER.append(WeatherEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT ");
+        SQL_CREATE_TABLE_WEATHER.append(WeatherEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, ");
         SQL_CREATE_TABLE_WEATHER.append(WeatherEntry.COLUMN_LOC_KEY + " INTEGER NOT NULL, ");
         SQL_CREATE_TABLE_WEATHER.append(WeatherEntry.COLUMN_DATE + " INTEGER NOT NULL, ");
         SQL_CREATE_TABLE_WEATHER.append(WeatherEntry.COLUMN_SHORT_DESC + " TEXT NOT NULL, ");
