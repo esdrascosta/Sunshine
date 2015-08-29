@@ -11,7 +11,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import br.com.esdras.sunshine.app.data.DayInfo;
+import br.com.esdras.sunshine.app.data.Utils;
 
 
 /**
@@ -21,7 +25,16 @@ public class DetailFragment extends Fragment {
 
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
     private static final String FORECAST_SHARE_HASHTAG="#SunShineApp";
-    private String forecastStr;
+    private DayInfo dayInfo;
+    private ImageView mIconView;
+    private TextView mDateView;
+    private TextView mFriendlyDateView;
+    private TextView mDescriptionView;
+    private TextView mHighTempView;
+    private TextView mLowTempView;
+    private TextView mHumidityView;
+    private TextView mWindView;
+    private TextView mPressureView;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -43,7 +56,7 @@ public class DetailFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         intent.setType("txt/plain");
-        intent.putExtra(Intent.EXTRA_TEXT,forecastStr + FORECAST_SHARE_HASHTAG);
+        intent.putExtra(Intent.EXTRA_TEXT, dayInfo + FORECAST_SHARE_HASHTAG);
         return  intent;
     }
 
@@ -53,7 +66,8 @@ public class DetailFragment extends Fragment {
 
         MenuItem item = menu.findItem(R.id.action_share);
 
-        ShareActionProvider shareActionProvider = (ShareActionProvider)MenuItemCompat.getActionProvider(item);
+        ShareActionProvider shareActionProvider =
+                (ShareActionProvider)MenuItemCompat.getActionProvider(item);
 
         if(shareActionProvider != null){
             shareActionProvider.setShareIntent( createShareIntent());
@@ -67,14 +81,40 @@ public class DetailFragment extends Fragment {
 
 
         Intent intent = getActivity().getIntent();
-        View view = inflater.inflate(R.layout.fragment_detail, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-        if(intent != null && intent.hasExtra((Intent.EXTRA_TEXT))){
-            forecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
-            TextView textView = (TextView) view.findViewById(R.id.detail_text);
-            textView.setText(forecastStr);
+        if(intent != null && intent.hasExtra("SERIAL")){
+
+            dayInfo = (DayInfo) intent.getSerializableExtra("SERIAL");
+
+            mIconView = (ImageView) rootView.findViewById(R.id.detail_icon);
+            mIconView.setImageResource(Utils.getArtResourceForWeatherCondition(dayInfo.weatherConditionId));
+
+            mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
+            mDateView.setText(Utils.getFormattedMonthDay(getActivity(), dayInfo.dateTime));
+
+            mFriendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_textview);
+            mFriendlyDateView.setText(Utils.getDayName(getActivity(), dayInfo.dateTime));
+
+            mDescriptionView = (TextView) rootView.findViewById(R.id.detail_forecast_textview);
+            mDescriptionView.setText(dayInfo.description);
+
+            mHighTempView = (TextView) rootView.findViewById(R.id.detail_high_textview);
+            mHighTempView.setText(Utils.formatTemperature(getActivity(),dayInfo.maxTemperature));
+
+            mLowTempView = (TextView) rootView.findViewById(R.id.detail_low_textview);
+            mLowTempView.setText(Utils.formatTemperature(getActivity(),dayInfo.minTemperature));
+
+            mHumidityView = (TextView) rootView.findViewById(R.id.detail_humidity_textview);
+            mHumidityView.setText(getActivity().getString(R.string.format_humidity, dayInfo.humidity));
+
+            mWindView = (TextView) rootView.findViewById(R.id.detail_wind_textview);
+            mWindView.setText(Utils.getFormattedWind(getActivity(), dayInfo.windSpeed, dayInfo.windDirection));
+
+            mPressureView = (TextView) rootView.findViewById(R.id.detail_pressure_textview);
+            mPressureView.setText(getActivity().getString(R.string.format_pressure, dayInfo.pressure));
         }
 
-        return view;
+        return rootView;
     }
 }

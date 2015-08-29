@@ -76,44 +76,44 @@ public class TestDB extends AndroidTestCase {
         return indexInsertedValue;
     }
 
-    public void testWeatherTable(){
-        long locationRowId = insertLocation();
-        assertFalse("Error: localização não inserida coretamento", locationRowId == -1L);
-
-        WeatherDBHelper weatherDBHelper = new WeatherDBHelper(getContext());
-        SQLiteDatabase db = weatherDBHelper.getWritableDatabase();
-
-        final long TEST_DATE = 1419033600L;  // 20 de Dezembro de 2014
-
-        ContentValues weatherValues = new ContentValues();
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, TEST_DATE);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5);
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);
-
-        long weatherRowId = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, weatherValues);
-        assertTrue(weatherRowId != -1);
-
-
-        Cursor cursor = db.query(WeatherContract.WeatherEntry.TABLE_NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
-
-        assertTrue("Deveria retornar um resultado",cursor.moveToFirst());
-        assertFalse("Não deveria haver outro valor na consulta", cursor.moveToNext());
-
-        cursor.close();
-        weatherDBHelper.close();
-    }
+//    public void testWeatherTable(){
+//        long locationRowId = insertLocation();
+//        assertFalse("Error: localização não inserida coretamento", locationRowId == -1L);
+//
+//        WeatherDBHelper weatherDBHelper = new WeatherDBHelper(getContext());
+//        SQLiteDatabase db = weatherDBHelper.getWritableDatabase();
+//
+//        final long TEST_DATE = 1419033600L;  // 20 de Dezembro de 2014
+//
+//        ContentValues weatherValues = new ContentValues();
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, TEST_DATE);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5);
+//        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);
+//
+//        long weatherRowId = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, weatherValues);
+//        assertTrue(weatherRowId != -1);
+//
+//
+//        Cursor cursor = db.query(WeatherContract.WeatherEntry.TABLE_NAME,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null);
+//
+//        assertTrue("Deveria retornar um resultado",cursor.moveToFirst());
+//        assertFalse("Não deveria haver outro valor na consulta", cursor.moveToNext());
+//
+//        cursor.close();
+//        weatherDBHelper.close();
+//    }
 
 }
